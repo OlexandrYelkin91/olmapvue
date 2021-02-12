@@ -10,9 +10,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td></td>
-                    <td></td>
+                <tr v-for="(el, index) in doObj" :key="index" >
+                    <td>{{index}}</td>
+                    <td>{{el.from}}</td>
                     <td></td>
                     <td></td>
                 </tr>
@@ -28,27 +28,27 @@
     export default {
         data: () => ({
             jsontrack: {},
-            stopsObj: {}
+            doObj: {}
         }),
         mounted() {
             axios.post('http://api-server.hidora.com/tracker/353173060445960/2020-12-15/2020-12-16')
-                .then(response => (this.jsontrack = response.data));
+              .then(response => (this.jsontrack = response.data));
         },
         watch: {
             jsontrack() {
-                let el = -1;
-                let stop = 0;
-                let date = "";
-                for (el in this.jsontrack) {
-                    if (this.jsontrack[el]) {
-                        date = new Date(this.jsontrack[el].date_time)
-                        this.stopsObj[stop] = date;
-                        this.stopsObj[stop].speed = this.jsontrack[el].gps_data.speed
-                        stop++
+                    for (let i = 0; i < this.jsontrack.length; i++) {
+                        //if (this.jsontrack[i].gps_data.speed === 0) {
+                        //    if (this.jsontrack[+i + 1].gps_data.speed === 0) {
+                        //        console.log(i)
+                        //    }
+                        //}
+                        this.doObj[i] = {}
+                        this.doObj[i].from = new Date(this.jsontrack[i].date_time).toString();
+                        this.doObj[i].speed = this.jsontrack[i].gps_data.speed
+                        this.doObj[i].latitude = this.jsontrack[i].gps_data.latitude
+                        this.doObj[i].longitude = this.jsontrack[i].gps_data.longitude
                     }
-                }
-                console.log(this.stopsObj)
-                // console.log(this.jsontrack)
+                console.log(this.doObj);
             }
         }
     }
@@ -77,6 +77,7 @@
     th,
     td {
         min-width: 120px;
+        max-width:400px;
         padding: 10px 20px;
     }
 </style>
