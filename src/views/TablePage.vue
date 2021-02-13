@@ -9,18 +9,18 @@
                     <th>km</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr v-for="(el, index) in doObj" :key="index" >
+            <tbody v-for="(el, index) in tempObj" :key="index">
+                <tr v-if="el.from!=undefined">
                     <td>{{index}}</td>
                     <td>{{el.from}}</td>
-                    <td></td>
+                    <td>{{el.to}}</td>
                     <td></td>
                 </tr>
             </tbody>
+            <tbody v-if="tempObj[0]==false">
+                <div class="load"></div>
+            </tbody>
         </table>
-        <div>
-
-        </div>
     </div>
 </template>
 <script>
@@ -28,7 +28,7 @@
     export default {
         data: () => ({
             jsontrack: {},
-            doObj: {}
+            tempObj: {[0]:false},
         }),
         mounted() {
             axios.post('http://api-server.hidora.com/tracker/353173060445960/2020-12-15/2020-12-16')
@@ -36,19 +36,34 @@
         },
         watch: {
             jsontrack() {
-                    for (let i = 0; i < this.jsontrack.length; i++) {
-                        //if (this.jsontrack[i].gps_data.speed === 0) {
-                        //    if (this.jsontrack[+i + 1].gps_data.speed === 0) {
-                        //        console.log(i)
-                        //    }
-                        //}
-                        this.doObj[i] = {}
-                        this.doObj[i].from = new Date(this.jsontrack[i].date_time).toString();
-                        this.doObj[i].speed = this.jsontrack[i].gps_data.speed
-                        this.doObj[i].latitude = this.jsontrack[i].gps_data.latitude
-                        this.doObj[i].longitude = this.jsontrack[i].gps_data.longitude
-                    }
-                console.log(this.doObj);
+                let jtob = this.jsontrack
+                let inc = 0
+                let elem = 1
+                //                                 --путь в json почемуто идет с конца--
+                //for (let i = 0; i < jtob.length; i++) { 
+                for (let i = +jtob.length - 1; i > 0; i--) {
+                    //if (i < +jtob.length - 1) {
+                        //if (jtob[i].gps_data.speed === 0 && jtob[+i + 1].gps_data.speed === 0 && inc == 0) {
+                        if (jtob[i].gps_data.speed === 0 && jtob[+i - 1].gps_data.speed === 0 && inc == 0) {
+
+                             inc = 1
+                             this.tempObj[elem] = {}
+                             this.tempObj[elem].from = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
+                             this.tempObj[elem].fromcoord = [jtob[i].gps_data.longitude, jtob[i].gps_data.latitude]
+                             elem++
+                        }
+                        //if (i != 0 && jtob[+i - 1].gps_data.speed === 0 && jtob[i].gps_data.speed != 0) {
+                        if (i < +jtob.length-1 && jtob[+i+1].gps_data.speed === 0 && jtob[i].gps_data.speed != 0 && inc == 1) {
+
+                             inc = 0
+                             elem--
+                             this.tempObj[elem].to = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ')
+                             this.tempObj[elem].tocoord = [jtob[i].gps_data.longitude, jtob[i].gps_data.latitude]
+                             elem++
+                        }
+                   // }
+                }
+                this.tempObj[0] = true
             }
         }
     }
@@ -79,5 +94,13 @@
         min-width: 120px;
         max-width:400px;
         padding: 10px 20px;
+    }
+    .load {
+        width: 645px;
+        height: 200px;
+        background: url('../assets/load.gif') no-repeat center;
+        z-index: 10;
+        position:absolute;
+        z-index:11;
     }
 </style>
