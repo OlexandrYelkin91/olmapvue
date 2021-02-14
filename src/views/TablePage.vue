@@ -25,40 +25,47 @@
 </template>
 <script>
     import axios from 'axios'
-    //import ol from 'ol'
-    //import GeoJSON from 'ol/format/GeoJSON'
-    //import map from 'ol/Map'
-    //import Point from 'ol/geom/Point'
     import { getDistance } from 'ol/sphere';
     export default {
         data: () => ({
             jsontrack: {},
-            tempObj: {[0]:false},
+            tempObj: { [0]: false },
         }),
         mounted() {
             axios.post('http://api-server.hidora.com/tracker/353173060445960/2020-12-15/2020-12-16')
-              .then(response => (this.jsontrack = response.data));
+                .then(response => (this.jsontrack = response.data));
         },
         watch: {
             jsontrack() {
                 let jtob = this.jsontrack;
                 let inc = 0;
                 let elem = 1;
-                //                                 --путь в json почемуто идет с конца--
-                //for (let i = 0; i < jtob.length; i++) { 
+                let distance = '';
+                let getdistance = '';
+
                 for (let i = +jtob.length - 1; i > 0; i--) {
-                    //if (i < +jtob.length - 1) {
-                    //if (jtob[i].gps_data.speed === 0 && jtob[+i + 1].gps_data.speed === 0 && inc == 0) {
                     if (jtob[i].gps_data.speed === 0 && jtob[+i - 1].gps_data.speed === 0 && inc == 0) {
 
                         inc = 1;
                         this.tempObj[elem] = {};
+                        this.tempObj[+elem + 1] = {};
                         this.tempObj[elem].idfrom = jtob[i].id;
                         this.tempObj[elem].from = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
                         this.tempObj[elem].fromcoord = [jtob[i].gps_data.longitude, jtob[i].gps_data.latitude];
+
+                        if (elem > 1) {
+                            getdistance = getDistance(this.tempObj[+elem - 1].fromcoord, this.tempObj[elem].fromcoord)
+                            if (getdistance > 1000) {
+                                distance = (Math.round(getdistance / 1000 * 100) / 100) + ' ' + 'km';
+                            }
+                            else {
+                                distance = (Math.round(getdistance * 100) / 100) + ' ' + 'm';
+                            }
+                            this.tempObj[elem].distance = distance
+                        }
+
                         elem++;
                     }
-                    //if (i != 0 && jtob[+i - 1].gps_data.speed === 0 && jtob[i].gps_data.speed != 0) {
                     if (i < +jtob.length - 1 && jtob[+i + 1].gps_data.speed === 0 && jtob[i].gps_data.speed != 0 && inc == 1) {
                         inc = 0;
                         elem--;
@@ -66,23 +73,10 @@
                         this.tempObj[elem].to = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
                         elem++;
                     }
-                    // }
-                }
-
-                this.tempObj[0] = true;              
-                    
-                let distance;
-                for (let i = 1; i < elem - 1; i++) {
-                    let getdistance = getDistance(this.tempObj[i].fromcoord, this.tempObj[+i+1].fromcoord)
-                    if (getdistance > 1000) {
-                        distance = (Math.round(getdistance / 1000 * 100) / 100) + ' ' + 'km';
-                    } else {
-                        distance = (Math.round(getdistance * 100) / 100) + ' ' + 'm';
-                    }
-                    this.tempObj[+i + 1].distance = distance
+                    this.tempObj[0] = true;
                 }
             }
-        },
+        }
     }
 </script>
 <style scoped>

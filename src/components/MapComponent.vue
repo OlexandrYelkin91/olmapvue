@@ -15,6 +15,8 @@
     import VectorLayer from 'ol/layer/Vector'
     import VectorSource from 'ol/source/Vector'
     import GeoJSON from 'ol/format/GeoJSON'
+    import {Stroke, Style } from 'ol/style'
+
     import 'ol/ol.css'
     export default {
         name: 'MapContainer',
@@ -32,14 +34,22 @@
         mounted() {
             this.vectorLayer = new VectorLayer({
                 source: new VectorSource({
-                    features: []
-                })
-            })
+                    features: [],
+                }),
+                style: [
+                  new Style({
+                        stroke: new Stroke({
+                            color: 'blue',
+                            width: 3,
+                        }),
+                        
+                })]
+            }),
             this.olMap = new Map({
                 target: this.$refs['map-root'],
                 layers: [
                     new TileLayer({
-                        source: new OSM()
+                        source: new OSM(),
                     }),
                     this.vectorLayer
                 ],
