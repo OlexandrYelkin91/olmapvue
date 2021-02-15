@@ -38,43 +38,61 @@
         watch: {
             jsontrack() {
                 let jtob = this.jsontrack;
-                let inc = 0;
+                let sw = false;
                 let elem = 1;
                 let distance = '';
                 let getdistance = '';
-
+                let coord = [];
                 for (let i = +jtob.length - 1; i > 0; i--) {
-                    if (jtob[i].gps_data.speed === 0 && jtob[+i - 1].gps_data.speed === 0 && inc == 0) {
-
-                        inc = 1;
+                    if (jtob[i].gps_data.speed === 0 && jtob[+i - 1].gps_data.speed === 0 && sw==false) {
                         this.tempObj[elem] = {};
-                        this.tempObj[+elem + 1] = {};
                         this.tempObj[elem].idfrom = jtob[i].id;
                         this.tempObj[elem].from = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
                         this.tempObj[elem].fromcoord = [jtob[i].gps_data.longitude, jtob[i].gps_data.latitude];
-
+                        
                         if (elem > 1) {
-                            getdistance = getDistance(this.tempObj[+elem - 1].fromcoord, this.tempObj[elem].fromcoord)
+                            if (this.tempObj[+elem - 1].betweenstops) {
+                                for (let inc = 0; inc < this.tempObj[+elem - 1].betweenstops.length - 1; inc++) {
+                                    let c1 = this.tempObj[+elem - 1].betweenstops[inc];
+                                    let c2 = this.tempObj[+elem - 1].betweenstops[+inc + 1];
+                                    let get = getDistance(c1, c2);
+                                    getdistance += +get;
+                                    console.log(getdistance)
+                                }
+                                
+                            }
+                            //this.tempObj[+elem-1].idto = jtob[i].id;
+                            //this.tempObj[+elem-1].to = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ')
+                            //getdistance = getDistance(this.tempObj[+elem - 1].fromcoord, this.tempObj[elem].fromcoord)
                             if (getdistance > 1000) {
                                 distance = (Math.round(getdistance / 1000 * 100) / 100) + ' ' + 'km';
                             }
                             else {
                                 distance = (Math.round(getdistance * 100) / 100) + ' ' + 'm';
                             }
-                            this.tempObj[elem].distance = distance
+                            this.tempObj[+elem-1].distance = distance
                         }
-
                         elem++;
+                        sw = true;
                     }
-                    if (i < +jtob.length - 1 && jtob[+i + 1].gps_data.speed === 0 && jtob[i].gps_data.speed != 0 && inc == 1) {
-                        inc = 0;
-                        elem--;
-                        this.tempObj[elem].idto = jtob[i].id;
-                        this.tempObj[elem].to = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
-                        elem++;
+                    if (jtob[i].gps_data.speed != 0 && sw == true) {
+                        this.tempObj[elem] = {}
+               
+                        if (elem > 0)
+                        {
+                            coord.push([jtob[i].gps_data.longitude, jtob[i].gps_data.latitude]);
+                            this.tempObj[+elem - 1].betweenstops = coord;
+                        }
+                        if (i > 1 && jtob[+i - 1].gps_data.speed === 0 && jtob[+i - 2].gps_data.speed === 0) {
+                            sw = false
+                            coord  = []
+                            
+                        }
                     }
-                    this.tempObj[0] = true;
+                    
                 }
+               // console.log(this.tempObj)
+                this.tempObj[0] = true;
             }
         }
     }
