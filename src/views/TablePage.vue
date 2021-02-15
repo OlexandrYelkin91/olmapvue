@@ -51,19 +51,31 @@
                         this.tempObj[elem].fromcoord = [jtob[i].gps_data.longitude, jtob[i].gps_data.latitude];
                         
                         if (elem > 1) {
+                            this.tempObj[+elem - 1].idto = jtob[i].id;
+                            this.tempObj[+elem-1].to = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
                             if (this.tempObj[+elem - 1].betweenstops) {
+
                                 for (let inc = 0; inc < this.tempObj[+elem - 1].betweenstops.length - 1; inc++) {
-                                    let c1 = this.tempObj[+elem - 1].betweenstops[inc];
-                                    let c2 = this.tempObj[+elem - 1].betweenstops[+inc + 1];
+                                    let c1;
+                                    let c2;
+                                    if (inc == 0) {
+                                        c1 = this.tempObj[+elem - 1].fromcoord;
+                                        c2 = this.tempObj[+elem - 1].betweenstops[inc];
+                                    }
+                                    else {
+                                        c1 = this.tempObj[+elem - 1].betweenstops[inc];
+                                    }
+                                    if (inc === this.tempObj[+elem - 1].betweenstops.length - 2) {
+                                        c2 = this.tempObj[elem].fromcoord;
+                                    }
+                                    if (inc != 0)
+                                    {
+                                        c2 = this.tempObj[+elem - 1].betweenstops[+inc + 1];
+                                    }
                                     let get = getDistance(c1, c2);
-                                    getdistance += +get;
-                                    console.log(getdistance)
+                                    getdistance = +getdistance + +get;
                                 }
-                                
                             }
-                            //this.tempObj[+elem-1].idto = jtob[i].id;
-                            //this.tempObj[+elem-1].to = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ')
-                            //getdistance = getDistance(this.tempObj[+elem - 1].fromcoord, this.tempObj[elem].fromcoord)
                             if (getdistance > 1000) {
                                 distance = (Math.round(getdistance / 1000 * 100) / 100) + ' ' + 'km';
                             }
@@ -74,6 +86,7 @@
                         }
                         elem++;
                         sw = true;
+                        getdistance = 0;
                     }
                     if (jtob[i].gps_data.speed != 0 && sw == true) {
                         this.tempObj[elem] = {}
@@ -86,12 +99,10 @@
                         if (i > 1 && jtob[+i - 1].gps_data.speed === 0 && jtob[+i - 2].gps_data.speed === 0) {
                             sw = false
                             coord  = []
-                            
                         }
-                    }
-                    
+                    } 
                 }
-               // console.log(this.tempObj)
+                console.log(this.tempObj)
                 this.tempObj[0] = true;
             }
         }
