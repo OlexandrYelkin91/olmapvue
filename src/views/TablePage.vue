@@ -44,7 +44,8 @@
                 let getdistance = '';
                 let coord = [];
                 for (let i = +jtob.length - 1; i > 0; i--) {
-                    if (jtob[i].gps_data.speed === 0 && jtob[+i - 1].gps_data.speed === 0 && sw==false) {
+                    if (jtob[i].gps_data.speed === 0 && jtob[+i - 1].gps_data.speed === 0 && sw == false) {
+                       
                         this.tempObj[elem] = {};
                         this.tempObj[elem].idfrom = jtob[i].id;
                         this.tempObj[elem].from = new Date(jtob[i].date_time).toString().split(' ', 6).join(' ');
@@ -88,7 +89,7 @@
                         sw = true;
                         getdistance = 0;
                     }
-                    if (jtob[i].gps_data.speed != 0 && sw == true) {
+                    if (jtob[i].gps_data.speed != 0 && sw == true && jtob[i].gps_data.speed != undefined) {
                         this.tempObj[elem] = {}
                
                         if (elem > 0)
@@ -101,8 +102,10 @@
                             coord  = []
                         }
                     } 
+                    if (i == 1) {
+                        delete this.tempObj[+elem - 1];
+                    }
                 }
-                console.log(this.tempObj)
                 this.tempObj[0] = true;
             }
         }
