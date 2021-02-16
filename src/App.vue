@@ -8,7 +8,6 @@
     <router-view/>
   </div>
 </template>
-
 <style>
 body {
     margin:0;
@@ -24,8 +23,9 @@ body {
 #nav a {
     text-decoration:none;
     margin: 0 20px;
+    font-weight:bolder;
     text-transform: uppercase;
-    font-size: larger;
+    font-size: 20px;
     color: cornflowerblue;
 }
 #nav a:hover {

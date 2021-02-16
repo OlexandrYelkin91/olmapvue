@@ -10,6 +10,7 @@
   .helloBlock {
     text-align: center;
     font-size: 200%;
+    font-weight:bolder;
     text-transform: uppercase;
     color: green;
   }
